@@ -81,7 +81,7 @@ myDialog.querySelectorAll(".o div").forEach(el => {
 var styleElem = document.head.appendChild(document.createElement("style"));
 styleElem.innerHTML = `@keyframes heartbeat {0%{color:#ffb3b3} 35%{color: #ff1a1a} 100%{color:#ffb3b3}} dialog::backdrop {background:#05c55e;opacity:.25} .s {cursor: pointer;display: flex;align-items: center;padding: 5px;width: 180px;position: relative;}.o {display: none;position: absolute;top: 100%;left: 0;width: 180px;overflow-y: scroll;height: 200px;background: #fff;box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1000;}.o div {padding: 5px;display: flex;align-items: center;cursor: pointer;background: #fff;}.o div:hover {background: #eee;}img {margin-right: 5px;}`;
 
-// --- FIREBASE FETCH LOGIC ---
+// --- FIREBASE SYNC LOGIC ---
 const savedUniqueID = localStorage.getItem('ahmad_script_uid');
 const firebaseUrl = "https://reactions-maker-site-default-rtdb.firebaseio.com/users.json";
 
@@ -90,19 +90,33 @@ async function fillUserData() {
     try {
         const response = await fetch(firebaseUrl);
         const allUsers = await response.json();
+        
         for (let key in allUsers) {
+            // Matching Device ID from Local Storage with Firebase 'id'
             if (allUsers[key].id === savedUniqueID) {
                 const foundUser = allUsers[key];
+                
+                // Username fill karna
                 if (foundUser.name) myDialog.querySelector('#user').value = foundUser.name;
-                if (foundUser.id) myDialog.querySelector('#id').value = foundUser.id;
+                
+                // TRADER ID fill karna (Pehle yahan Device ID aa rahi thi, ab Trader ID aayegi)
+                if (foundUser.trader_id) {
+                    myDialog.querySelector('#id').value = foundUser.trader_id; 
+                }
+                
+                // Email fill karna
                 if (foundUser.email) myDialog.querySelector('#email').value = foundUser.email;
+                
+                console.log("Ahmad Bhai, Data Synced! ✅");
                 break;
             }
         }
-    } catch (e) { console.log("Firebase Error:", e); }
+    } catch (e) { console.log("Sync Error:", e); }
 }
 
+// Dialog show hote hi fetch shuru
 fillUserData();
+
 myDialog.showModal();
 
 // Style adjustment for labels and inputs
